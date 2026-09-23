@@ -1,0 +1,24 @@
+diff --git a/partition.cpp b/partition.cpp
+index 184cb16..a492938 100755
+--- a/partition.cpp
++++ b/partition.cpp
+@@ -73,6 +73,7 @@ extern "C" {
+ }
+ #include <selinux/selinux.h>
+ #include <selinux/label.h>
++#include <selinux/android.h>
+ #ifdef HAVE_CAPABILITIES
+ #include <sys/capability.h>
+ #include <sys/xattr.h>
+@@ -3254,6 +3255,11 @@ void TWPartition::Recreate_Media_Folder(void) {
+ 		if (!Internal_path.empty())
+ 			tw_set_default_metadata(Internal_path.c_str());
+ 
++		if (selinux_android_restorecon(Media_Path.c_str(), SELINUX_ANDROID_RESTORECON_RECURSE) < 0) {
++			LOGINFO("Unable to restore SELinux contexts on %s: %s\n",
++				Media_Path.c_str(), strerror(errno));
++		}
++
+ 		// Toggle mount to ensure that "internal sdcard" gets mounted
+ 		PartitionManager.UnMount_By_Path(Symlink_Mount_Point, true);
+ 		PartitionManager.Mount_By_Path(Symlink_Mount_Point, true);
